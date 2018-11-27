@@ -1,28 +1,21 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
+import React, { useState } from 'react';
+import { Button, Input } from 'antd';
+import _ from 'lodash';
+import Test from './Test';
 import './App.css';
 
-class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
-      </div>
-    );
-  }
+const initialKey = _.uniqueId();
+
+function App() {
+  const [key, setKey] = useState(initialKey);
+  const [value, handleChange] = useState();
+  return (
+    <div className="App">
+      <Test key={key} />
+      <Button onClick={() => { setKey(_.uniqueId()) }}>点击</Button>
+      <Input value={value} onChange={(e) => { handleChange(e.target.value) }} />
+    </div>
+  );
 }
 
 export default App;

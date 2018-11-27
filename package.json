@@ -3,13 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "react": "^16.6.1",
-    "react-dom": "^16.6.1",
+    "antd": "^3.10.7",
+    "babel-plugin-import": "^1.11.0",
+    "react": "^16.7.0-alpha.2",
+    "react-app-rewired": "^1.6.2",
+    "react-dom": "^16.7.0-alpha.2",
     "react-scripts": "2.1.1"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
