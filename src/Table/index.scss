@@ -1,0 +1,16 @@
+.root{
+  padding: 8px;  
+  :global{
+    .action-btn{
+      margin-right: 12px;
+    }
+    .search-input{
+      width: 200px;
+      margin-right: 12px;
+    }
+    .table-pagination{
+      margin: 12px 0;
+      text-align: right;
+    }
+  }
+}
