@@ -14,7 +14,7 @@ function createWindow() {
   })
 
   // and load the index.html of the app.
-  mainWindow.loadURL('http://localhost:3000')
+  mainWindow.loadFile('./build/index.html')
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
@@ -26,13 +26,13 @@ function createWindow() {
     // when you should delete the corresponding element.
     mainWindow = null
   })
-
-  // exec("cd ./train-server && npm start", (err) => {
-  //   console.log("testtttttttttttttttttttttttttt");
-  //   if(err) {
-  //     process.exit();
-  //   }
-  // })
+  try {
+    exec("cd ./train-server && npm start", (err) => {
+      console.log("start train-server", err);
+    })
+  } catch (error) {
+    console.log("error", error);
+  }
 }
 
 // This method will be called when Electron has finished
