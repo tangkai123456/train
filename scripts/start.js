@@ -132,7 +132,7 @@ checkBrowsers(paths.appPath, isInteractive)
         //     console.log('exit electron!!!');
         //     process.exit(code);
         //   })
-        spawn('electron', ['./'], {
+        spawn('electron-forge', ['start'], {
           shell: true,
           stdio: 'inherit',
         })

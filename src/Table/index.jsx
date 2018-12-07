@@ -1,9 +1,36 @@
 import React from 'react';
-import { Table, Button, Modal, message, Input, Pagination } from 'antd';
+import { Button, Modal, message, Input, Pagination } from 'antd';
 import queryString from 'query-string';
 import { debounce } from 'lodash';
+import { AgGridReact } from 'ag-grid-react';
 import AddForm from './AddForm';
 import styles from './index.scss';
+import 'ag-grid-community/dist/styles/ag-grid.css';
+import 'ag-grid-community/dist/styles/ag-theme-balham.css';
+import 'ag-grid-community/dist/styles/ag-theme-balham-dark.css';
+import "ag-grid-enterprise";
+
+const normalLocaleText = {
+  copy: '复制',
+  copyWithHeaders: '复制与标题',
+  ctrlC: 'ctrl  C',
+  paste: '粘贴',
+  ctrlV: 'ctrl  V',
+  toolPanel: '工具面板',
+  export: '导出',
+  csvExport: 'CSV导出',
+  excelExport: 'Excel导出',
+  rowGroupColumnsEmptyMessage: "如需汇总, 请拖置此处",
+  pinColumn: '固定列',
+  pinLeft: '左固定',
+  pinRight: '右固定',
+  noPin: '无固定',
+  autosizeThiscolumn: '自动调整此列',
+  autosizeAllColumns: '自动调整所有列',
+  resetColumns: '重置列',
+  groupBy: '按此列汇总',
+  noRowsToShow: "暂无数据"
+};
 
 class TableComponent extends React.PureComponent {
   state = {
@@ -13,43 +40,51 @@ class TableComponent extends React.PureComponent {
     total: 0,
     loading: false,
     visible: false,
-    selectedRowKeys: [],
     selectedRow: undefined,
     search: undefined,
   }
   columns = [
     {
-      title: '车号',
-      dataIndex: 'code',
-      filter: true,
+      headerName: '车号',
+      field: 'code',
+      headerCheckboxSelection: true,
+      headerCheckboxSelectionFilteredOnly: true,
+      checkboxSelection: true,
+      width: 100,
     },
     {
-      title: '车型',
-      dataIndex: 'type',
+      headerName: '车型',
+      field: 'type',
+      width: 100,
     },
     {
-      title: '厂修',
-      dataIndex: 'cx',
+      headerName: '厂修',
+      field: 'cx',
+      width: 180,
     },
     {
-      title: '段修',
-      dataIndex: 'dx',
+      headerName: '段修',
+      field: 'dx',
+      width: 180,
     },
     {
-      title: '辅修',
-      dataIndex: 'fx',
+      headerName: '辅修',
+      field: 'fx',
+      width: 180,
     },
     {
-      title: '故障信息',
-      dataIndex: 'hitch',
+      headerName: '故障信息',
+      field: 'hitch',
+      width: 430,
     },
     {
-      title: '操作',
-      render: (text, record) => {
+      headerName: '操作',
+      width: 150,
+      cellRendererFramework: ({ data }) => {
         return (
           <div>
-            <Button onClick={this.handleEdit(record)} className="action-btn">编辑</Button>
-            <Button onClick={this.handleDel(record)} className="action-btn">删除</Button>
+            <Button onClick={this.handleEdit(data)} className="action-btn">编辑</Button>
+            <Button onClick={this.handleDel(data)} className="action-btn">删除</Button>
           </div>
         );
       }
@@ -71,7 +106,7 @@ class TableComponent extends React.PureComponent {
 
   handleDel = (record) => {
     return () => {
-      this.delete([record.code]);
+      this.delete([record.id]);
     }
   }
 
@@ -135,10 +170,6 @@ class TableComponent extends React.PureComponent {
     });
   }
 
-  onSelectChange = (selectedRowKeys) => {
-    this.setState({ selectedRowKeys });
-  }
-
   handleCloseForm = () => {
     this.setState({
       visible: false,
@@ -152,19 +183,18 @@ class TableComponent extends React.PureComponent {
   }
 
   deleteGroup = () => {
-    this.delete(this.state.selectedRowKeys)
-      .then(() => {
-        this.setState({
-          selectedRowKeys: [],
-        })
-      })
+    const selected = this.agGrid.api.getSelectedRows();
+    if (selected.length) {
+      this.delete(selected.map(item => item.id));
+    } else {
+      message.warning("请选择");
+    }
   }
 
   handleChange = (e) => {
     this.setState({
       search: e.target.value,
       page: 1,
-      selectedRowKeys: [],
     }, () => {
       this.debounceFetch();
     });
@@ -176,30 +206,32 @@ class TableComponent extends React.PureComponent {
     this.setState({
       page,
       pageSize,
-      selectedRowKeys: [],
     }, () => {
       this.fetchData();
     });
   }
 
   render() {
-    const { data, page, pageSize, total, loading, visible, selectedRowKeys, selectedRow } = this.state;
-    const rowSelection = {
-      selectedRowKeys,
-      onChange: this.onSelectChange,
-    };
+    const { data, page, pageSize, total, loading, visible, selectedRow } = this.state;
     return (
       <div className={styles.root}>
         <Input onChange={this.handleChange} className="search-input" placeholder="请输入搜索值" />
         <Button onClick={this.openAddForm} className="action-btn">添加</Button>
-        <Button onClick={this.deleteGroup} className="action-btn" disabled={!selectedRowKeys.length}>批量删除</Button>
-        <Table
-          columns={this.columns}
-          rowKey={record => record.code}
-          dataSource={data}
+        <Button onClick={this.deleteGroup} className="action-btn">批量删除</Button>
+        <AgGridReact
+          columnDefs={this.columns}
+          rowData={data}
           pagination={false}
           loading={loading}
-          rowSelection={rowSelection}
+          localeText={normalLocaleText}
+          domLayout="autoHeight"
+          enableColResize
+          rowHeight={40}
+          onGridReady={(params) => {
+            this.agGrid = params;
+          }}
+          suppressRowClickSelection
+          rowSelection="multiple"
         />
         <Pagination
           className="table-pagination"
@@ -211,7 +243,7 @@ class TableComponent extends React.PureComponent {
           onChange={this.changePage}
           onShowSizeChange={this.changePage}
         />
-        <Modal visible={visible} title="添加\修改" footer={false} onCancel={this.handleCloseForm} >
+        <Modal visible={visible} title="添加\修改" footer={false} onCancel={this.handleCloseForm} destroyOnClose>
           <AddForm onSubmit={this.handleSubmit} selectedRow={selectedRow} />
         </Modal>
       </div>

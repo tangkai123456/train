@@ -9,12 +9,13 @@ let mainWindow
 function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 1280,
+    width: 1366,
     height: 900,
   })
 
   // and load the index.html of the app.
-  mainWindow.loadFile('./build/index.html')
+  // mainWindow.loadURL('http://localhost:3000/index.html');
+  mainWindow.loadURL(`file://${__dirname}/build/index.html`);
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
@@ -26,13 +27,13 @@ function createWindow() {
     // when you should delete the corresponding element.
     mainWindow = null
   })
-  try {
-    exec("cd ./train-server && npm start", (err) => {
-      console.log("start train-server", err);
-    })
-  } catch (error) {
-    console.log("error", error);
-  }
+  // try {
+  //   exec("cd ./train-server && npm start", (err) => {
+  //     console.log("start train-server", err);
+  //   })
+  // } catch (error) {
+  //   console.log("error", error);
+  // }
 }
 
 // This method will be called when Electron has finished

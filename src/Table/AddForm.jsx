@@ -36,6 +36,12 @@ class AddForm extends Component {
     form.validateFields((err, values) => {
       if (!err) {
         let method = selectedRow ? "put" : "post";
+        const body = values;
+        if(selectedRow) {
+          Object.assign(body, {
+            id: selectedRow.id,
+          });
+        }
         window.fetch('http://localhost:7001/api/train', {
           method: method,
           type: 'json',
@@ -43,7 +49,7 @@ class AddForm extends Component {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify(values),
+          body: JSON.stringify(body),
         })
           .then((res) => {
             return res.json();
@@ -87,7 +93,7 @@ class AddForm extends Component {
             }],
             initialValue: selectedRow.code,
           })(
-            <Input disabled={!!selectedRow.code} />
+            <Input name="code" />
           )}
         </FormItem>
         <FormItem

@@ -32,13 +32,13 @@ class ListController extends Controller {
     this.ctx.body = { code: 200, data };
   }
   async update() {
-    const { code, ...extra } = this.ctx.request.body;
-    const data = await this.app.mysql.update('ksc', extra, { where: { code } });
+    const { id, ...extra } = this.ctx.request.body;
+    const data = await this.app.mysql.update('ksc', extra, { where: { id } });
     this.ctx.body = { code: 200, data };
   }
   async delete() {
     const { codeList } = this.ctx.request.body;
-    const sql = `DELETE FROM KSC WHERE code in (${codeList.map(item => `'${item}'`).join(',')})`;
+    const sql = `DELETE FROM KSC WHERE id in (${codeList.map(item => `'${item}'`).join(',')})`;
     const data = await this.app.mysql.query(sql);
     this.ctx.body = { code: 200, data };
   }
